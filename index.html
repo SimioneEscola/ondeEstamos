@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análise Educacional — EE Luiz Simioni Sobrinho 2024/2025</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #F5F2EC;
+    --surface: #FAFAF7;
+    --surface2: #EEEAE0;
+    --ink: #1A1915;
+    --ink2: #4A4840;
+    --ink3: #8A857A;
+    --red: #C0392B;
+    --red-bg: #FAEAE8;
+    --orange: #C0620A;
+    --orange-bg: #FDF0E0;
+    --green: #1A6B3C;
+    --green-bg: #E3F4EB;
+    --blue: #1A4A7A;
+    --blue-bg: #E3EDF8;
+    --gold: #B08A1E;
+    --gold-bg: #FBF3DC;
+    --accent: #C0392B;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  /* ── NAV ─────────────────────────────────── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--ink);
+    padding: 0 2rem;
+    display: flex; align-items: center; gap: 0;
+    height: 52px;
+    overflow-x: auto;
+  }
+  nav a {
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 0 1rem;
+    height: 52px;
+    display: flex; align-items: center;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+  }
+  nav a:hover, nav a.active { color: #fff; border-bottom-color: var(--accent); }
+  nav .brand { color: #fff; font-family: 'DM Serif Display', serif; font-size: 14px; margin-right: 1.5rem; white-space: nowrap; border: none; padding-left: 0; }
+
+  /* ── HERO ─────────────────────────────────── */
+  .hero {
+    background: var(--ink);
+    color: #fff;
+    padding: 4rem 2rem 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 60px),
+                repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 60px);
+  }
+  .hero-inner { max-width: 860px; margin: 0 auto; position: relative; }
+  .hero-tag { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: .75rem; }
+  .hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.15; margin-bottom: 1rem; }
+  .hero h1 em { font-style: italic; color: rgba(255,255,255,.6); }
+  .hero-meta { font-size: 13px; color: rgba(255,255,255,.5); margin-top: 1.5rem; display: flex; gap: 2rem; flex-wrap: wrap; }
+  .hero-meta span strong { color: #fff; }
+
+  /* ── LAYOUT ─────────────────────────────────── */
+  .page { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+  section { margin-bottom: 3.5rem; }
+  .section-label {
+    font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--ink3); margin-bottom: 1.25rem;
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--surface2); }
+  h2 { font-family: 'DM Serif Display', serif; font-size: 1.6rem; line-height: 1.2; margin-bottom: 1rem; }
+  h3 { font-size: 15px; font-weight: 600; margin-bottom: .5rem; }
+  p { color: var(--ink2); margin-bottom: .75rem; }
+
+  /* ── METRICS ROW ─────────────────────────────── */
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 1.5rem 0; }
+  .metric { background: var(--surface); border: 1px solid var(--surface2); border-radius: var(--radius); padding: 1rem; }
+  .metric-label { font-size: 11px; font-weight: 500; color: var(--ink3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .25rem; }
+  .metric-val { font-family: 'DM Serif Display', serif; font-size: 2rem; line-height: 1; }
+  .metric-sub { font-size: 11px; color: var(--ink3); margin-top: .2rem; }
+  .metric.up .metric-val { color: var(--green); }
+  .metric.down .metric-val { color: var(--red); }
+  .metric.warn .metric-val { color: var(--orange); }
+  .metric.neutral .metric-val { color: var(--blue); }
+
+  /* ── CHARTS ─────────────────────────────────── */
+  .chart-box { background: var(--surface); border: 1px solid var(--surface2); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin: 1rem 0; }
+  .chart-box .chart-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: .25rem; }
+  .chart-box .chart-sub { font-size: 12px; color: var(--ink3); margin-bottom: 1rem; }
+  .chart-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; font-size: 11px; color: var(--ink3); }
+  .chart-legend span { display: flex; align-items: center; gap: 5px; }
+  .legend-sq { width: 10px; height: 10px; border-radius: 2px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* ── DEFICIT INFOGRAPHIC ─────────────────────── */
+  .deficit-grid { display: grid; gap: 8px; margin: 1.25rem 0; }
+  .deficit-row {
+    background: var(--surface); border: 1px solid var(--surface2);
+    border-radius: var(--radius); padding: .85rem 1rem;
+    display: grid; grid-template-columns: 90px 1fr 70px; align-items: center; gap: 12px;
+  }
+  .deficit-row:hover { background: #F0EDE4; }
+  .deficit-year { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .deficit-bar-wrap { position: relative; height: 22px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+  .deficit-bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; font-weight: 600; color: #fff; transition: width 1s ease; }
+  .deficit-pct { font-size: 13px; font-weight: 600; text-align: right; }
+  .deficit-pct .need { font-size: 10px; font-weight: 400; color: var(--ink3); display: block; }
+
+  /* ── PATTERN CARDS ─────────────────────────────── */
+  .patterns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 1rem 0; }
+  .pattern { border-radius: var(--radius); padding: .9rem 1rem; border-left: 3px solid; }
+  .pattern.r { background: var(--red-bg); border-color: var(--red); }
+  .pattern.o { background: var(--orange-bg); border-color: var(--orange); }
+  .pattern.g { background: var(--green-bg); border-color: var(--green); }
+  .pattern h4 { font-size: 13px; font-weight: 600; margin-bottom: .3rem; }
+  .pattern.r h4 { color: var(--red); }
+  .pattern.o h4 { color: var(--orange); }
+  .pattern.g h4 { color: var(--green); }
+  .pattern p { font-size: 12px; color: var(--ink2); margin: 0; }
+
+  /* ── PEI TRIPÉ ─────────────────────────────────── */
+  .tripe { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+  .tripe-col { border-radius: var(--radius-lg); overflow: hidden; }
+  .tripe-head { padding: .85rem 1rem; font-size: 13px; font-weight: 600; }
+  .tripe-head small { display: block; font-size: 10px; font-weight: 400; opacity: .75; margin-top: 2px; text-transform: uppercase; letter-spacing: .06em; }
+  .tripe-col.pp .tripe-head { background: #1A4A7A; color: #fff; }
+  .tripe-col.tut .tripe-head { background: #1A6B3C; color: #fff; }
+  .tripe-col.pv .tripe-head { background: #7A2B1A; color: #fff; }
+  .tripe-body { background: var(--surface); border: 1px solid var(--surface2); border-top: none; border-radius: 0 0 var(--radius-lg) var(--radius-lg); padding: .85rem 1rem; }
+  .tripe-item { font-size: 12px; color: var(--ink2); padding: .35rem 0; border-bottom: 1px solid var(--surface2); display: flex; gap: .5rem; align-items: flex-start; }
+  .tripe-item:last-child { border: none; }
+  .tripe-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+  .tripe-dot.fail { background: var(--red); }
+  .tripe-dot.warn { background: var(--orange); }
+  .tripe-dot.ok   { background: var(--green); }
+  .impact-tag { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 3px; margin-top: 3px; font-weight: 500; }
+  .impact-tag.high { background: var(--red-bg); color: var(--red); }
+  .impact-tag.med  { background: var(--orange-bg); color: var(--orange); }
+  .impact-tag.low  { background: var(--green-bg); color: var(--green); }
+
+  /* ── ACTION PLAN ─────────────────────────────────── */
+  .axis-card { border-radius: var(--radius-lg); overflow: hidden; margin-bottom: .85rem; border: 1px solid var(--surface2); }
+  .axis-head { padding: .75rem 1.25rem; display: flex; align-items: center; gap: .75rem; }
+  .axis-head .axis-icon { font-size: 18px; }
+  .axis-head .axis-ttl { font-size: 14px; font-weight: 600; }
+  .axis-head .axis-badge { margin-left: auto; font-size: 10px; padding: 3px 10px; border-radius: 20px; font-weight: 600; background: rgba(255,255,255,0.25); }
+  .axis-body { background: var(--surface); padding: .85rem 1.25rem; }
+  .axis-action { display: flex; gap: 10px; padding: .5rem 0; border-bottom: 1px solid var(--surface2); align-items: flex-start; font-size: 13px; color: var(--ink2); }
+  .axis-action:last-child { border: none; }
+  .axis-num { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; margin-top: 1px; }
+  .axis-tags { display: flex; flex-wrap: wrap; gap: 5px; padding-top: .65rem; }
+  .tag { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+  .tag.r { background: var(--red-bg); color: var(--red); }
+  .tag.o { background: var(--orange-bg); color: var(--orange); }
+  .tag.g { background: var(--green-bg); color: var(--green); }
+  .tag.b { background: var(--blue-bg); color: var(--blue); }
+
+  /* axis colors */
+  .axis-1 .axis-head { background: #C0392B; color: #fff; }
+  .axis-1 .axis-num  { background: rgba(192,57,43,.15); color: #C0392B; }
+  .axis-2 .axis-head { background: #C0620A; color: #fff; }
+  .axis-2 .axis-num  { background: rgba(192,98,10,.15); color: #C0620A; }
+  .axis-3 .axis-head { background: #1A6B3C; color: #fff; }
+  .axis-3 .axis-num  { background: rgba(26,107,60,.15); color: #1A6B3C; }
+  .axis-4 .axis-head { background: #1A4A7A; color: #fff; }
+  .axis-4 .axis-num  { background: rgba(26,74,122,.15); color: #1A4A7A; }
+
+  /* ── TIMELINE ─────────────────────────────────── */
+  .timeline { position: relative; padding-left: 28px; margin: 1.5rem 0; }
+  .timeline::before { content: ''; position: absolute; left: 9px; top: 4px; bottom: 0; width: 2px; background: var(--surface2); }
+  .tl-item { position: relative; margin-bottom: 1.25rem; }
+  .tl-item::before { content: ''; position: absolute; left: -24px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--surface2); border: 2px solid var(--surface2); }
+  .tl-item.active::before { background: var(--accent); border-color: var(--accent); }
+  .tl-period { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--ink3); }
+  .tl-desc { font-size: 13px; color: var(--ink2); margin-top: 2px; }
+
+  /* ── FOOTER ─────────────────────────────────── */
+  footer { background: var(--ink); color: rgba(255,255,255,.4); text-align: center; padding: 1.5rem; font-size: 11px; }
+
+  /* ── RESPONSIVE ─────────────────────────────────── */
+  @media (max-width: 600px) {
+    .metrics { grid-template-columns: 1fr 1fr; }
+    .patterns { grid-template-columns: 1fr; }
+    .tripe { grid-template-columns: 1fr; }
+    .grid2 { grid-template-columns: 1fr; }
+    .deficit-row { grid-template-columns: 80px 1fr 60px; }
+  }
+
+  /* ── PRINT ─────────────────────────────────── */
+  @media print {
+    nav, footer { display: none; }
+    .chart-box, .axis-card, .pattern { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="#">EE Luiz Simioni</a>
+  <a href="#resultados">Resultados</a>
+  <a href="#deficit">Déficit</a>
+  <a href="#padroes">Padrões</a>
+  <a href="#pei">Tripé PEI</a>
+  <a href="#plano">Plano de Ação</a>
+  <a href="#cronograma">Cronograma</a>
+</nav>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">SARESP · Prova Paulista · Diagnóstico 2025</div>
+    <h1>Análise Educacional<br><em>EE Luiz Simioni Sobrinho</em></h1>
+    <div class="hero-meta">
+      <span><strong>Diretoria:</strong> SUL 1 / São Paulo</span>
+      <span><strong>Modalidade:</strong> Escola Integral — Alta Vulnerabilidade</span>
+      <span><strong>Documento:</strong> Análise 2022–2025</span>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- ──────────────────── RESULTADOS ────────────────────── -->
+  <section id="resultados">
+    <div class="section-label">01 — Panorama dos Resultados</div>
+    <h2>Onde estamos hoje</h2>
+    <p>A escola apresenta evolução expressiva em Língua Portuguesa no 9º ano em 2025, mas mantém distância significativa das metas de proficiência. Matemática e as ciências da natureza/exatas acumulam defasagem histórica.</p>
+
+    <div class="metrics">
+      <div class="metric up">
+        <div class="metric-label">LP 9º Ano — 2025</div>
+        <div class="metric-val">257</div>
+        <div class="metric-sub">▲ +24 pts vs 2024 · Melhor histórico</div>
+      </div>
+      <div class="metric warn">
+        <div class="metric-label">MAT 9º Ano — 2025</div>
+        <div class="metric-val">256,5</div>
+        <div class="metric-sub">▲ +9,5 pts vs 2024 · Meta: 300</div>
+      </div>
+      <div class="metric down">
+        <div class="metric-label">FIS — Diagnóstico 2025</div>
+        <div class="metric-val">2,2</div>
+        <div class="metric-sub">Mais crítico da escola</div>
+      </div>
+      <div class="metric neutral">
+        <div class="metric-label">3ª Prova Paulista 2025</div>
+        <div class="metric-val">60,3%</div>
+        <div class="metric-sub">▲ +13,4 pts vs 1ª prova</div>
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-title">Evolução SARESP — Médias 9º ano (2022–2025)</div>
+      <div class="chart-sub">Comparado com a meta de nível Adequado</div>
+      <div class="chart-legend">
+        <span><span class="legend-sq" style="background:#1A4A7A"></span>Língua Portuguesa</span>
+        <span><span class="legend-sq" style="background:#1A6B3C"></span>Matemática</span>
+        <span><span class="legend-sq" style="background:#B08A1E; opacity:.6"></span>Meta LP (275)</span>
+        <span><span class="legend-sq" style="background:#C0392B; opacity:.6"></span>Meta MAT (300)</span>
+      </div>
+      <div style="position:relative;height:220px"><canvas id="c-saresp"></canvas></div>
+    </div>
+
+    <div class="grid2">
+      <div class="chart-box">
+        <div class="chart-title">Prova Paulista — % acerto geral</div>
+        <div class="chart-sub">2024 vs 2025 por rodada</div>
+        <div class="chart-legend">
+          <span><span class="legend-sq" style="background:#1A4A7A"></span>2024</span>
+          <span><span class="legend-sq" style="background:#1A6B3C"></span>2025</span>
+        </div>
+        <div style="position:relative;height:160px"><canvas id="c-pp"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">Diagnóstico 2025 — nota por componente</div>
+        <div class="chart-sub">SUL 1 · média de acertos (0–10)</div>
+        <div style="position:relative;height:160px"><canvas id="c-diag"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-title">Distribuição por nível de proficiência — LP e MAT 9º ano (2022–2024)</div>
+      <div class="chart-sub">Percentual de alunos por faixa de desempenho</div>
+      <div class="grid2" style="margin-top:.75rem">
+        <div>
+          <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--ink3)">Língua Portuguesa</div>
+          <div class="chart-legend">
+            <span><span class="legend-sq" style="background:#C0392B"></span>Abaixo Básico</span>
+            <span><span class="legend-sq" style="background:#EF9F27"></span>Básico</span>
+            <span><span class="legend-sq" style="background:#1A6B3C"></span>Adequado</span>
+            <span><span class="legend-sq" style="background:#1A4A7A"></span>Avançado</span>
+          </div>
+          <div style="position:relative;height:140px"><canvas id="c-lvlLP"></canvas></div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--ink3)">Matemática</div>
+          <div class="chart-legend">
+            <span><span class="legend-sq" style="background:#C0392B"></span>Abaixo Básico</span>
+            <span><span class="legend-sq" style="background:#EF9F27"></span>Básico</span>
+            <span><span class="legend-sq" style="background:#1A6B3C"></span>Adequado</span>
+            <span><span class="legend-sq" style="background:#1A4A7A"></span>Avançado</span>
+          </div>
+          <div style="position:relative;height:140px"><canvas id="c-lvlMAT"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ──────────────────── DÉFICIT ────────────────────── -->
+  <section id="deficit">
+    <div class="section-label">02 — Déficit para o Nível Adequado</div>
+    <h2>Quantos alunos precisam avançar?</h2>
+    <p>Para a escola atingir o nível <strong>Adequado</strong> de proficiência no SARESP, é necessário que pelo menos 50% dos alunos de cada série estejam acima desse patamar. Veja abaixo o percentual de alunos que precisam sair do nível Básico ou Abaixo do Básico — priorizados por urgência.</p>
+
+    <div style="background:var(--surface);border:1px solid var(--surface2);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin:1rem 0">
+      <div style="font-size:13px;font-weight:600;margin-bottom:1rem">Língua Portuguesa — % de alunos a migrar para o Adequado (meta: ≥ 50% no nível Adequado+Avançado)</div>
+      <div style="display:grid;grid-template-columns:100px 1fr 90px;gap:8px;margin-bottom:6px;font-size:11px;font-weight:600;color:var(--ink3);padding:0 0 4px;border-bottom:1px solid var(--surface2)">
+        <span>Série/Ano</span><span>Alunos no Básico/Abaixo — barras proporcionais ao esforço necessário</span><span style="text-align:right">No Adequado+</span>
+      </div>
+      <div class="deficit-grid" id="deficit-lp"></div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--surface2);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin:1rem 0">
+      <div style="font-size:13px;font-weight:600;margin-bottom:1rem">Matemática — % de alunos a migrar para o Adequado</div>
+      <div style="display:grid;grid-template-columns:100px 1fr 90px;gap:8px;margin-bottom:6px;font-size:11px;font-weight:600;color:var(--ink3);padding:0 0 4px;border-bottom:1px solid var(--surface2)">
+        <span>Série/Ano</span><span>Situação atual e esforço necessário</span><span style="text-align:right">No Adequado+</span>
+      </div>
+      <div class="deficit-grid" id="deficit-mat"></div>
+    </div>
+
+    <div style="background:var(--gold-bg);border:1px solid #E8D080;border-radius:var(--radius);padding:1rem 1.25rem;font-size:13px;color:var(--ink2);margin-top:.5rem">
+      <strong style="color:var(--gold)">Como ler este infográfico:</strong> A barra colorida mostra o percentual atual de alunos nos níveis Básico + Abaixo do Básico. Quanto maior a barra vermelha/laranja, maior o esforço pedagógico necessário. O número à direita mostra quantos já estão no Adequado ou Avançado — o objetivo é levar esse percentual acima de 50%.
+    </div>
+  </section>
+
+  <!-- ──────────────────── PADRÕES ────────────────────── -->
+  <section id="padroes">
+    <div class="section-label">03 — Padrões Identificados</div>
+    <h2>Onde a escola avança e onde trava</h2>
+
+    <div class="patterns">
+      <div class="pattern r">
+        <h4>Física e Química: crise crítica</h4>
+        <p>FIS (2,2) e QUI (2,4) estão abaixo do limiar mínimo de 3,0. Exigem plano de emergência imediato, não apenas reforço.</p>
+      </div>
+      <div class="pattern r">
+        <h4>MAT: teto histórico travado</h4>
+        <p>Matemática oscila entre 242–256 há 4 anos — nunca se aproxima da meta de 300. Há defasagem acumulada de múltiplos anos.</p>
+      </div>
+      <div class="pattern r">
+        <h4>Volatilidade em LP</h4>
+        <p>LP caiu 13 pts em 2024 e recuperou 24 pts em 2025. Isso indica que a aprendizagem não está consolidada — depende de fatores conjunturais.</p>
+      </div>
+      <div class="pattern o">
+        <h4>Prova Paulista: queda inicial em 2025</h4>
+        <p>1ª PP 2025 caiu para 46,9% (vs 55,9% em 2024), revelando fragilidade no início do ano letivo.</p>
+      </div>
+      <div class="pattern o">
+        <h4>Base muito grande no Básico/Abaixo</h4>
+        <p>Em MAT 9º ano 2024: 40,9% abaixo do básico + 40,9% no básico = 81,8% dos alunos em nível insuficiente.</p>
+      </div>
+      <div class="pattern g">
+        <h4>LP 2025: melhor resultado histórico</h4>
+        <p>257 pts é o topo da série histórica. A escola demonstrou capacidade de movimento real quando há foco pedagógico.</p>
+      </div>
+      <div class="pattern g">
+        <h4>Recuperação ao longo do ano</h4>
+        <p>Crescimento de 46,9 → 60,3% na Prova Paulista 2025 mostra que a escola responde às intervenções durante o ano.</p>
+      </div>
+      <div class="pattern g">
+        <h4>Alta participação no 9º ano</h4>
+        <p>94,1% de participação no SARESP — acima da Rede Estadual (92,6%) e da RMSP (92,0%). Engajamento não é o problema.</p>
+      </div>
+    </div>
+
+    <div class="chart-box" style="margin-top:1.5rem">
+      <div class="chart-title">Posicionamento da escola vs benchmarks — SARESP 2024 (9º ano)</div>
+      <div class="chart-sub">Escola · Diretoria de Ensino · RMSP · Rede Estadual · Meta Adequado</div>
+      <div class="chart-legend">
+        <span><span class="legend-sq" style="background:#C0392B"></span>Escola</span>
+        <span><span class="legend-sq" style="background:#C0620A"></span>Diretoria SUL 1</span>
+        <span><span class="legend-sq" style="background:#1A4A7A"></span>RMSP</span>
+        <span><span class="legend-sq" style="background:#4A4840"></span>Rede Estadual</span>
+        <span><span class="legend-sq" style="background:#B08A1E;opacity:.6"></span>Meta Adequado</span>
+      </div>
+      <div style="position:relative;height:200px"><canvas id="c-bench"></canvas></div>
+    </div>
+  </section>
+
+  <!-- ──────────────────── PEI TRIPÉ ────────────────────── -->
+  <section id="pei">
+    <div class="section-label">04 — Tripé da PEI: Falhas e Impactos</div>
+    <h2>Pedagogia da Presença · Tutoria · Projeto de Vida</h2>
+    <p>O programa de escola integral fundamenta-se em três pilares interdependentes. A análise dos dados revela onde cada pilar falha e qual o impacto direto nos resultados de aprendizagem da escola.</p>
+
+    <div class="tripe">
+      <!-- PEDAGOGIA DA PRESENÇA -->
+      <div class="tripe-col pp">
+        <div class="tripe-head">Pedagogia da Presença<small>Vínculo · Acolhimento · Clima escolar</small></div>
+        <div class="tripe-body">
+          <div class="tripe-item">
+            <div class="tripe-dot ok"></div>
+            <div>
+              <strong>Participação SARESP 94,1%</strong> — acima da rede. Sinal positivo de vínculo com a escola.
+              <span class="impact-tag low">Ponto forte</span>
+            </div>
+          </div>
+          <div class="tripe-item">
+            <div class="tripe-dot warn"></div>
+            <div>
+              Alunos permanecem no Básico por múltiplos anos consecutivos, sugerindo falta de diagnóstico individual e acompanhamento afetivo do processo.
+              <span class="impact-tag med">Impacto médio</span>
+            </div>
+          </div>
+          <div class="tripe-item">
+            <div class="tripe-dot fail"></div>
+            <div>
+              Volatilidade LP (−13 pts em 2024) sugere clima pedagógico instável: quando fatores externos mudam, os resultados regridem rapidamente.
+              <span class="impact-tag high">Impacto alto</span>
+            </div>
+          </div>
+          <div class="tripe-item">
+            <div class="tripe-dot fail"></div>
+            <div>
+              Ausência de rotinas pedagógicas estáveis: a presença física não garante presença pedagógica ativa — FIS e QUI com 2,2/2,4 indicam aulas com baixo engajamento real.
+              <span class="impact-tag high">Impacto alto</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TUTORIA -->
+      <div class="tripe-col tut">
+        <div class="tripe-head">Tutoria<small>Acompanhamento · Mediação · Reorientação</small></div>
+        <div class="tripe-body">
+          <div class="tripe-item">
+            <div class="tripe-dot fail"></div>
+            <div>
+              81,8% dos alunos do 9º ano em MAT estão abaixo do adequado. Tutoria eficaz deveria capturar esses alunos nos anos iniciais — a defasagem chegou ao fim do ciclo.
+              <span class="impact-tag high">Impacto crítico</span>
+            </div>
+          </div>
+          <div class="tripe-item">
+            <div class="tripe-dot fail"></div>
+            <div>
+              A queda de LP em 2024 seguida de recuperação em 2025 sugere que a tutoria não é contínua — reage à crise em vez de preveni-la.
+              <span class="impact-tag high">Impacto alto</span>
+            </div>
+          </div>
+          <div class="tripe-item">
+            <div class="tripe-dot warn"></div>
+            <div>
+              Ausência de dados diferenciados por série 6º–8º no SARESP mais recente dificulta identificar em qual ponto a tutoria perde o aluno no percurso.
+              <span class="impact-tag med">Impacto médio</span>
+            </div>
+          </div>
+          <div class="tripe-item">
+            <div class="tripe-dot ok"></div>
+            <div>
+              A recuperação da Prova Paulista ao longo de 2025 (+13,4 pts) indica que, quando a tutoria é ativada, ela funciona.
+              <span class="impact-tag low">Potencial</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROJETO DE VIDA -->
+      <div class="tripe-col pv">
+        <div class="tripe-head">Projeto de Vida<small>Protagonismo · Sentido · Futuro</small></div>
+        <div class="tripe-body">
+          <div class="tripe-item">
+            <div class="tripe-dot fail"></div>
+            <div>
+              Desempenho crítico em FIS (2,2) e QUI (2,4) bloqueia escolhas de carreira nas ciências — o PV perde sentido se o aluno não domina os conteúdos do campo que deseja seguir.
+              <span class="impact-tag high">Impacto alto</span>
+            </div>
+          </div>
+          <div class="tripe-item">
+            <div class="tripe-dot fail"></div>
+            <div>
+              Com 40,9% dos alunos do 9º ano abaixo do básico em MAT, a transição para o Ensino Médio representa ruptura severa — o PV não tem base cognitiva para prosperar.
+              <span class="impact-tag high">Impacto crítico</span>
+            </div>
+          </div>
+          <div class="tripe-item">
+            <div class="tripe-dot warn"></div>
+            <div>
+              A escola ainda não conectou consistentemente as disciplinas às trajetórias do PV — alunos não percebem sentido em GEO (3,9) e HIS (4,3) sem essa articulação.
+              <span class="impact-tag med">Impacto médio</span>
+            </div>
+          </div>
+          <div class="tripe-item">
+            <div class="tripe-dot ok"></div>
+            <div>
+              O crescimento consistente da Prova Paulista ao longo do ano pode indicar alunos que encontraram motivação — o PV pode estar gerando engajamento tardio.
+              <span class="impact-tag low">Potencial</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--surface2);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-top:1.25rem">
+      <h3 style="margin-bottom:.75rem">Síntese: onde o tripé perde força</h3>
+      <div style="font-size:13px;color:var(--ink2);line-height:1.7">
+        <p>O tripé da PEI funciona como sistema — quando um pilar falha, os outros perdem sustentação. A <strong>Pedagogia da Presença</strong> estabelece o clima, mas não garante aprendizagem se o conteúdo não é acessível (evidenciado pelo teto em MAT). A <strong>Tutoria</strong> deveria capturar os alunos em defasagem nos anos iniciais — o acúmulo de 81,8% abaixo do adequado em MAT no 9º ano indica que a tutoria está chegando tarde. O <strong>Projeto de Vida</strong> perde potência quando o aluno não tem domínio das áreas que almeja — FIS e QUI com médias abaixo de 2,5 fecham portas concretas para dezenas de trajetórias.</p>
+        <p style="margin:0;margin-top:.5rem">A boa notícia: a escola demonstrou em 2025 que o sistema pode funcionar. O salto de LP e a recuperação na PP mostram que quando os três pilares se alinham — vínculo, acompanhamento e sentido — o resultado aparece.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ──────────────────── PLANO ────────────────────── -->
+  <section id="plano">
+    <div class="section-label">05 — Plano de Ação</div>
+    <h2>Quatro eixos de intervenção</h2>
+
+    <div class="axis-card axis-1">
+      <div class="axis-head">
+        <span class="axis-icon">🔴</span>
+        <span class="axis-ttl">Eixo 1 — Emergência: Física e Química</span>
+        <span class="axis-badge">Prioridade máxima</span>
+      </div>
+      <div class="axis-body">
+        <div class="axis-action"><div class="axis-num">1</div><div>Diagnóstico por habilidade em FIS e QUI, mapeando descritores críticos por turma nas primeiras duas semanas do próximo bimestre.</div></div>
+        <div class="axis-action"><div class="axis-num">2</div><div>Grupos de reforço intensivo semanais obrigatórios para alunos abaixo de 3,0 — cronograma fixo, professor responsável, controle de frequência.</div></div>
+        <div class="axis-action"><div class="axis-num">3</div><div>Redução do escopo do planejamento anual: menos conteúdo, mais profundidade nos descritores fundamentais do currículo paulista.</div></div>
+        <div class="axis-action"><div class="axis-num">4</div><div>Articicular FIS e QUI com o Projeto de Vida — conectar os conteúdos a trajetórias concretas (saúde, engenharia, tecnologia) para dar sentido ao aprendizado.</div></div>
+        <div class="axis-tags">
+          <span class="tag r">FIS 2,2 → meta 5,0</span>
+          <span class="tag r">QUI 2,4 → meta 5,0</span>
+          <span class="tag o">GEO 3,9 em atenção</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="axis-card axis-2">
+      <div class="axis-head">
+        <span class="axis-icon">🟠</span>
+        <span class="axis-ttl">Eixo 2 — Matemática: quebrar o teto histórico</span>
+        <span class="axis-badge">Alta prioridade</span>
+      </div>
+      <div class="axis-body">
+        <div class="axis-action"><div class="axis-num">1</div><div>Nivelamento das turmas do 6º ao 9º com diagnóstico de lacunas de anos anteriores (operações, frações, álgebra, proporcionalidade) — identificar onde cada aluno parou de acompanhar.</div></div>
+        <div class="axis-action"><div class="axis-num">2</div><div>Aulas de recuperação contínua semanais para os 40,9% abaixo do básico no 9º ano, focando nas habilidades fundantes do eixo Números e Álgebra.</div></div>
+        <div class="axis-action"><div class="axis-num">3</div><div>Monitoramento bimestral via Prova Paulista com análise por descritor, replanejando a estratégia a cada ciclo com dados concretos.</div></div>
+        <div class="axis-action"><div class="axis-num">4</div><div>Identificar os alunos no limiar entre Básico e Adequado — esse grupo, com esforço concentrado, pode mover a média da escola significativamente em curto prazo.</div></div>
+        <div class="axis-tags">
+          <span class="tag o">Média 2025: 256,5</span>
+          <span class="tag r">Meta: 300 · Gap: −43,5</span>
+          <span class="tag r">40,9% Abaixo Básico (2024)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="axis-card axis-3">
+      <div class="axis-head">
+        <span class="axis-icon">🟢</span>
+        <span class="axis-ttl">Eixo 3 — LP: consolidar e estabilizar o avanço</span>
+        <span class="axis-badge">Manutenção estratégica</span>
+      </div>
+      <div class="axis-body">
+        <div class="axis-action"><div class="axis-num">1</div><div>Identificar e documentar as práticas que geraram o salto de LP em 2025 (+24 pts) — entrevistar professores, analisar planejamentos — e torná-las rotina institucionalizada.</div></div>
+        <div class="axis-action"><div class="axis-num">2</div><div>Ampliar a abordagem de leitura e produção textual para os anos iniciais do EF, com gêneros textuais alinhados aos descritores do SARESP.</div></div>
+        <div class="axis-action"><div class="axis-num">3</div><div>Criar banco de textos e atividades integradas com HIS, GEO e CIE — LP como ferramenta transversal, não disciplina isolada.</div></div>
+        <div class="axis-tags">
+          <span class="tag g">LP 2025: 257 — recorde histórico</span>
+          <span class="tag o">Meta: 275 · Gap: −18</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="axis-card axis-4">
+      <div class="axis-head">
+        <span class="axis-icon">🔵</span>
+        <span class="axis-ttl">Eixo 4 — Gestão pedagógica e tripé PEI</span>
+        <span class="axis-badge">Estrutural</span>
+      </div>
+      <div class="axis-body">
+        <div class="axis-action"><div class="axis-num">1</div><div><strong>Tutoria reativa → tutoria preventiva:</strong> criar protocolo de acompanhamento individual com identificação precoce de alunos em risco, não esperar o 9º ano para agir.</div></div>
+        <div class="axis-action"><div class="axis-num">2</div><div><strong>Comitê pedagógico mensal:</strong> gestão + coordenação + professores analisando dados da PP e SARESP diagnóstico para ajuste de rota em tempo real.</div></div>
+        <div class="axis-action"><div class="axis-num">3</div><div><strong>Projeto de Vida como âncora:</strong> articular PV com os conteúdos críticos de FIS, QUI e MAT — mostrar ao aluno a conexão entre o que aprende e onde quer chegar.</div></div>
+        <div class="axis-action"><div class="axis-num">4</div><div><strong>Estabilidade pedagógica:</strong> criar rotinas de ensino que não dependam de condições externas — a queda de LP em 2024 mostra que a escola ainda é vulnerável à instabilidade.</div></div>
+        <div class="axis-tags">
+          <span class="tag b">Tripé PEI integrado</span>
+          <span class="tag b">Tutoria preventiva</span>
+          <span class="tag b">Dados → decisão → ação</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ──────────────────── CRONOGRAMA ────────────────────── -->
+  <section id="cronograma">
+    <div class="section-label">06 — Cronograma de Implementação</div>
+    <h2>Horizonte de ações</h2>
+
+    <div class="timeline">
+      <div class="tl-item active">
+        <div class="tl-period">Imediato — 30 dias</div>
+        <div class="tl-desc">Diagnóstico por habilidade em FIS e QUI. Identificação dos alunos no limiar Básico→Adequado em MAT e LP. Formação do comitê pedagógico mensal.</div>
+      </div>
+      <div class="tl-item active">
+        <div class="tl-period">Curto prazo — 1º bimestre</div>
+        <div class="tl-desc">Início dos grupos de reforço intensivo em FIS/QUI. Nivelamento diagnóstico 6º–9º em MAT. Revisão dos planejamentos anuais com foco em descritores críticos.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-period">Médio prazo — 2º bimestre</div>
+        <div class="tl-desc">Monitoramento de resultados via PP. Ajuste de estratégia com base nos dados. Início da integração LP ↔ HIS/GEO/CIE. Protocolo de tutoria preventiva em operação.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-period">Médio prazo — 3º bimestre</div>
+        <div class="tl-desc">Avaliação dos grupos de reforço em FIS/QUI (meta: subir acima de 4,0). Revisão do PV articulado com disciplinas críticas. Segunda rodada de nivelamento em MAT.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-period">Longo prazo — SARESP 2025</div>
+        <div class="tl-desc">Metas: LP 9º ano ≥ 265 · MAT 9º ano ≥ 265 · FIS e QUI diagnóstico ≥ 4,0 · PP média anual ≥ 60%. Redução do Abaixo do Básico em MAT para menos de 30%.</div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--surface2);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-top:1rem">
+      <h3 style="margin-bottom:.75rem">Metas propostas para 2025/2026</h3>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        <div style="background:var(--blue-bg);border-radius:var(--radius);padding:.85rem;text-align:center">
+          <div style="font-size:11px;color:var(--blue);font-weight:600;text-transform:uppercase;margin-bottom:4px">LP 9º Ano</div>
+          <div style="font-size:1.6rem;font-family:'DM Serif Display',serif;color:var(--blue)">≥ 265</div>
+          <div style="font-size:11px;color:var(--ink3)">atual: 257</div>
+        </div>
+        <div style="background:var(--orange-bg);border-radius:var(--radius);padding:.85rem;text-align:center">
+          <div style="font-size:11px;color:var(--orange);font-weight:600;text-transform:uppercase;margin-bottom:4px">MAT 9º Ano</div>
+          <div style="font-size:1.6rem;font-family:'DM Serif Display',serif;color:var(--orange)">≥ 265</div>
+          <div style="font-size:11px;color:var(--ink3)">atual: 256,5</div>
+        </div>
+        <div style="background:var(--red-bg);border-radius:var(--radius);padding:.85rem;text-align:center">
+          <div style="font-size:11px;color:var(--red);font-weight:600;text-transform:uppercase;margin-bottom:4px">FIS / QUI Diag.</div>
+          <div style="font-size:1.6rem;font-family:'DM Serif Display',serif;color:var(--red)">≥ 4,0</div>
+          <div style="font-size:11px;color:var(--ink3)">atual: 2,2 / 2,4</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  EE Luiz Simioni Sobrinho — Análise SARESP 2022–2025 · Documento para uso interno da comunidade escolar
+</footer>
+
+<script>
+// ── SARESP EVOLUTION ───────────────
+new Chart(document.getElementById('c-saresp'), {
+  type: 'line',
+  data: {
+    labels: ['2022','2023','2024','2025'],
+    datasets: [
+      { label:'LP', data:[238,246.5,233,257], borderColor:'#1A4A7A', backgroundColor:'rgba(26,74,122,.08)', fill:true, tension:.3, pointRadius:5, pointBackgroundColor:'#1A4A7A' },
+      { label:'MAT', data:[242.2,251.4,247,256.5], borderColor:'#1A6B3C', backgroundColor:'rgba(26,107,60,.08)', fill:true, tension:.3, pointRadius:5, pointBackgroundColor:'#1A6B3C' },
+      { label:'Meta LP', data:[275,275,275,275], borderColor:'#B08A1E', borderDash:[6,4], borderWidth:1.5, pointRadius:0, fill:false },
+      { label:'Meta MAT', data:[300,300,300,300], borderColor:'#C0392B', borderDash:[6,4], borderWidth:1.5, pointRadius:0, fill:false },
+    ]
+  },
+  options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{min:210,max:320,ticks:{color:'#8A857A',font:{size:11}},grid:{color:'rgba(0,0,0,.06)'}}, x:{ticks:{color:'#8A857A',font:{size:11}},grid:{display:false}} } }
+});
+
+// ── PROVA PAULISTA ───────────────
+new Chart(document.getElementById('c-pp'), {
+  type: 'bar',
+  data: {
+    labels:['1ª Prova','2ª Prova','3ª Prova'],
+    datasets:[
+      { label:'2024', data:[55.9,55.9,54.6], backgroundColor:'rgba(26,74,122,.7)', borderRadius:4 },
+      { label:'2025', data:[46.9,54.1,60.3], backgroundColor:'rgba(26,107,60,.7)', borderRadius:4 }
+    ]
+  },
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{min:35,max:70,ticks:{color:'#8A857A',font:{size:11},callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.06)'}}, x:{ticks:{color:'#8A857A',font:{size:11}},grid:{display:false}} } }
+});
+
+// ── DIAGNÓSTICO 2025 ───────────────
+const diagLabels = ['LP','MAT','ING','CIE','HIS','GEO','FIS','QUI','BIO','FIL','SOC'];
+const diagData   = [5.4,4.3,4.8,5.1,4.3,3.9,2.2,2.4,2.9,4.4,4.6];
+const diagColors = diagData.map(v => v<3?'#C0392B':v<4?'#C0620A':'#1A4A7A');
+new Chart(document.getElementById('c-diag'), {
+  type:'bar',
+  data:{ labels:diagLabels, datasets:[{ data:diagData, backgroundColor:diagColors, borderRadius:3 }] },
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{min:0,max:6,ticks:{color:'#8A857A',font:{size:11}},grid:{color:'rgba(0,0,0,.06)'}}, x:{ticks:{color:'#8A857A',font:{size:11}},grid:{display:false}} } }
+});
+
+// ── LP LEVELS ───────────────
+new Chart(document.getElementById('c-lvlLP'), {
+  type:'bar',
+  data:{ labels:['2022','2023','2024'], datasets:[
+    { label:'Abaixo Básico', data:[23.5,15.1,30.0], backgroundColor:'#C0392B' },
+    { label:'Básico', data:[53.9,58.1,43.6], backgroundColor:'#EF9F27' },
+    { label:'Adequado', data:[20.6,25.6,25.5], backgroundColor:'#1A6B3C' },
+    { label:'Avançado', data:[2.0,1.2,0.9], backgroundColor:'#1A4A7A' },
+  ]},
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{stacked:true,ticks:{font:{size:10},color:'#8A857A'},grid:{display:false}}, y:{stacked:true,max:100,ticks:{font:{size:10},color:'#8A857A'}} } }
+});
+
+// ── MAT LEVELS ───────────────
+new Chart(document.getElementById('c-lvlMAT'), {
+  type:'bar',
+  data:{ labels:['2022','2023','2024'], datasets:[
+    { label:'Abaixo Básico', data:[33.3,20.9,40.9], backgroundColor:'#C0392B' },
+    { label:'Básico', data:[57.8,68.1,40.9], backgroundColor:'#EF9F27' },
+    { label:'Adequado', data:[8.8,9.9,16.4], backgroundColor:'#1A6B3C' },
+    { label:'Avançado', data:[0.0,1.1,1.8], backgroundColor:'#1A4A7A' },
+  ]},
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{stacked:true,ticks:{font:{size:10},color:'#8A857A'},grid:{display:false}}, y:{stacked:true,max:100,ticks:{font:{size:10},color:'#8A857A'}} } }
+});
+
+// ── BENCHMARK ───────────────
+new Chart(document.getElementById('c-bench'), {
+  type:'bar',
+  data:{
+    labels:['LP 9º Ano','MAT 9º Ano'],
+    datasets:[
+      { label:'Escola', data:[233.5,247.4], backgroundColor:'#C0392B', borderRadius:4 },
+      { label:'Diretoria SUL 1', data:[229.5,241.9], backgroundColor:'#C0620A', borderRadius:4 },
+      { label:'RMSP', data:[232.9,244.4], backgroundColor:'#1A4A7A', borderRadius:4 },
+      { label:'Rede Estadual', data:[235.7,248.5], backgroundColor:'#4A4840', borderRadius:4 },
+      { label:'Meta Adequado', data:[275,300], backgroundColor:'rgba(176,138,30,.35)', borderRadius:4 },
+    ]
+  },
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{font:{size:11},color:'#4A4840',padding:10}}}, scales:{ y:{min:190,max:320,ticks:{color:'#8A857A',font:{size:11}},grid:{color:'rgba(0,0,0,.06)'}}, x:{ticks:{color:'#8A857A',font:{size:11}},grid:{display:false}} } }
+});
+
+// ── DÉFICIT INFOGRAPHIC ───────────────
+const lpRows = [
+  { serie:'9º EF', adequado:26.4, basico:43.6, abaixo:30.0, ano:'2024' },
+  { serie:'5º EF', adequado:19.1, basico:30.2, abaixo:13.8, ano:'2024' },
+  { serie:'3ª EM (LP 2022)', adequado:28.8, basico:41.7, abaixo:27.3, ano:'2022' },
+];
+const matRows = [
+  { serie:'9º EF', adequado:18.2, basico:40.9, abaixo:40.9, ano:'2024' },
+  { serie:'3ª EM (MAT 2022)', adequado:5.3, basico:42.4, abaixo:52.3, ano:'2022' },
+  { serie:'5º EF', adequado:14.5, basico:33.7, abaixo:18.4, ano:'2024' },
+];
+
+function buildDeficit(rows, containerId) {
+  const el = document.getElementById(containerId);
+  rows.forEach(r => {
+    const notAdequate = Math.round(r.basico + r.abaixo);
+    const needed = Math.max(0, 50 - Math.round(r.adequado));
+    const urgency = r.adequado < 20 ? '#C0392B' : r.adequado < 35 ? '#C0620A' : '#1A6B3C';
+    const div = document.createElement('div');
+    div.className = 'deficit-row';
+    div.innerHTML = `
+      <div class="deficit-year">${r.serie}<br><span style="font-size:10px;color:var(--ink3);font-weight:400">${r.ano}</span></div>
+      <div>
+        <div class="deficit-bar-wrap">
+          <div class="deficit-bar-fill" style="width:${notAdequate}%;background:${urgency}">${notAdequate}% no Básico/Abaixo</div>
+        </div>
+        <div style="font-size:10px;color:var(--ink3);margin-top:3px">
+          ${r.abaixo.toFixed(1)}% Abaixo Básico + ${r.basico.toFixed(1)}% Básico precisam avançar
+        </div>
+      </div>
+      <div class="deficit-pct" style="color:${urgency}">
+        ${r.adequado.toFixed(1)}%
+        <span class="need">no adequado+</span>
+        <span style="font-size:10px;font-weight:600;color:${needed>0?'#C0392B':'#1A6B3C'}">${needed>0?'+'+needed+'% faltam':'✓ acima de 50%'}</span>
+      </div>
+    `;
+    el.appendChild(div);
+  });
+}
+
+buildDeficit(lpRows, 'deficit-lp');
+buildDeficit(matRows, 'deficit-mat');
+
+// ── NAV HIGHLIGHT ───────────────
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('nav a[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const active = document.querySelector(`nav a[href="#${e.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { threshold: 0.3 });
+sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
